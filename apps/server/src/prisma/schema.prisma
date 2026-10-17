@@ -14,9 +14,9 @@ datasource db {
 model Account {
   id           String           @id @default(cuid())
   email        String           @unique
-  passwordHash String?
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  passwordHash String?          @map("password_hash")
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
   decks        Deck[]
   sessions     AccountSession[]
 
@@ -24,14 +24,13 @@ model Account {
 }
 
 model AccountSession {
-  tokenHash String   @id
-  accountId String
-  expiresAt DateTime
-  createdAt DateTime @default(now())
+  tokenHash String   @id @map("token_hash")
+  accountId String   @map("account_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
   account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
   @@index([accountId])
-
   @@map("users_sessions")
 }
 
@@ -39,20 +38,22 @@ model BlackCard {
   id         String          @id @default(cuid())
   text       String          @db.Text
   pick       Int
-  deletedAt  DateTime?
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
+  deletedAt  DateTime?       @map("deleted_at")
+  createdAt  DateTime        @default(now()) @map("created_at")
+  updatedAt  DateTime        @updatedAt @map("updated_at")
   decksCards DeckBlackCard[]
+
   @@map("black_cards")
 }
 
 model WhiteCard {
   id         String          @id @default(cuid())
   text       String          @db.Text
-  deletedAt  DateTime?
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
+  deletedAt  DateTime?       @map("deleted_at")
+  createdAt  DateTime        @default(now()) @map("created_at")
+  updatedAt  DateTime        @updatedAt @map("updated_at")
   decksCards DeckWhiteCard[]
+
   @@map("white_cards")
 }
 
@@ -60,23 +61,24 @@ model Deck {
   id             String   @id @default(cuid())
   name           String   @db.Text
   description    String?  @db.Text
-  importedDeckId String?
-  cahOfficial    Boolean  @default(false)
+  importedDeckId String?  @map("imported_deck_id")
+  cahOfficial    Boolean  @default(false) @map("cah_official")
   // Informational only: any account can edit or delete any non-official deck.
-  createdById    String?
+  createdById    String?  @map("created_by_id")
   createdBy      Account? @relation(fields: [createdById], references: [id], onDelete: SetNull)
 
-  deletedAt  DateTime?
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
+  deletedAt  DateTime?       @map("deleted_at")
+  createdAt  DateTime        @default(now()) @map("created_at")
+  updatedAt  DateTime        @updatedAt @map("updated_at")
   blackCards DeckBlackCard[]
   whiteCards DeckWhiteCard[]
+
   @@map("decks")
 }
 
 model DeckBlackCard {
-  deckId      String
-  blackCardId String
+  deckId      String    @map("deck_id")
+  blackCardId String    @map("black_card_id")
   deck        Deck      @relation(fields: [deckId], references: [id], onDelete: Cascade)
   blackCard   BlackCard @relation(fields: [blackCardId], references: [id], onDelete: Cascade)
 
@@ -85,8 +87,8 @@ model DeckBlackCard {
 }
 
 model DeckWhiteCard {
-  deckId      String
-  whiteCardId String
+  deckId      String    @map("deck_id")
+  whiteCardId String    @map("white_card_id")
   deck        Deck      @relation(fields: [deckId], references: [id], onDelete: Cascade)
   whiteCard   WhiteCard @relation(fields: [whiteCardId], references: [id], onDelete: Cascade)
 
